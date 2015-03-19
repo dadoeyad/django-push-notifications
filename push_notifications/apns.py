@@ -57,7 +57,7 @@ def _apns_create_socket(address_tuple, cert):
 
 
 def _apns_create_socket_to_push(cert=None):
-	return _apns_create_socket((SETTINGS["APNS_HOST"], SETTINGS["APNS_PORT"]))
+	return _apns_create_socket((SETTINGS["APNS_HOST"], SETTINGS["APNS_PORT"]), cert)
 
 
 def _apns_create_socket_to_feedback():
@@ -152,7 +152,7 @@ def _apns_send(token, alert, badge=None, sound=None, category=None, content_avai
 	if socket:
 		socket.write(frame)
 	else:
-		with closing(_apns_create_socket_to_push()) as socket:
+		with closing(_apns_create_socket_to_push(cert)) as socket:
 			socket.write(frame)
 			_apns_check_errors(socket)
 
