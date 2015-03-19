@@ -31,8 +31,13 @@ class APNSDataOverflow(APNSError):
 	pass
 
 
-def _apns_create_socket(address_tuple):
-	certfile = SETTINGS.get("APNS_CERTIFICATE")
+def _apns_create_socket(address_tuple, cert):
+	if cert == 'user':
+		certfile = SETTINGS.get("APNS_USER_CERTIFICATE")
+	elif cert == 'agent':
+		certfile = SETTINGS.get("APNS_AGENT_CERTIFICATE")
+	else:
+		certfile = SETTINGS.get("APNS_CERTIFICATE")
 	if not certfile:
 		raise ImproperlyConfigured(
 			'You need to set PUSH_NOTIFICATIONS_SETTINGS["APNS_CERTIFICATE"] to send messages through APNS.'
@@ -51,7 +56,7 @@ def _apns_create_socket(address_tuple):
 	return sock
 
 
-def _apns_create_socket_to_push():
+def _apns_create_socket_to_push(cert=None):
 	return _apns_create_socket((SETTINGS["APNS_HOST"], SETTINGS["APNS_PORT"]))
 
 
@@ -101,7 +106,7 @@ def _apns_check_errors(sock):
 
 def _apns_send(token, alert, badge=None, sound=None, category=None, content_available=False,
 	action_loc_key=None, loc_key=None, loc_args=[], extra={}, identifier=0,
-	expiration=None, priority=10, socket=None):
+	expiration=None, priority=10, socket=None, cert=None):
 	data = {}
 	aps_data = {}
 
